@@ -48,7 +48,7 @@ const App = () => {
       {/* Check the implementation of each component, to see what props they require, if any! */}
       <SearchBar/>
       {/* Assign variable - likePost and set it lP */}
-      <Posts likePost={likePost}/>
+      <Posts likePost={likePost} posts={posts}/>
     </div>
   );
 };
