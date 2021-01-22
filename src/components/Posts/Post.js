@@ -25,7 +25,7 @@ const Post = props => {
       likePost={() => likePost(post.id)} 
       numberOfLikes={post.likes}
       addComment={addComment}
-      psot={post}
+      post={post}
       text={text}/>
       {/* Comments also wants its props! */}
       <Comments comments={post.comments} />
