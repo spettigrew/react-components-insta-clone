@@ -11,12 +11,31 @@ import React, {useState} from 'react';
 import './App.css';
 import Posts from './components/Posts/Posts'
 import SearchBar from './components/SearchBar/SearchBar'
+import dummyData from './dummy-data'
 
 const App = () => {
   // Create a state called `posts` to hold the array of post objects, **initializing to dummyData**.
   const [posts, setPosts] = useState(dummyData)
+  const [newComment, setNewComment] = useState({
+    id: '',
+    username: '',
+    text: '',
+
+  })
+  const randomInt = Math.floor((Math.random()*1000) +1)
+  const [searchResults, setSearchResults] = useState([])
   // This state is the source of truth for the data inside the app. You won't be needing dummyData anymore.
   // To make the search bar work (which is stretch) we'd need another state to hold the search term.
+  const [search, setSearch] = useState("");
+/*
+This function serves the purpose of increasing the number of likes by one, of the post with a given id.
+The state of the app lives at the top of the React tree, but it wouldn't be fair for nested components not to be able to change state!
+This function is passed down to nested components through props, allowing them to increase the number of likes of a given post.
+Invoke `setPosts` and pass as the new state the invocation of `posts.map`.
+The callback passed into `map` performs the following logic:
+  - if the `id` of the post matches `postId`, return a new post object with the desired values (use the spread operator).
+  - otherwise just return the post object unchanged.
+*/
 
   const likePost = (postId) => {
     setPosts(
@@ -27,28 +46,67 @@ const App = () => {
           likes: post.likes + 1
          }
         }
+        return post
       })
     )
-    /*
-      This function serves the purpose of increasing the number of likes by one, of the post with a given id.
-
-      The state of the app lives at the top of the React tree, but it wouldn't be fair for nested components not to be able to change state!
-      This function is passed down to nested components through props, allowing them to increase the number of likes of a given post.
-
-      Invoke `setPosts` and pass as the new state the invocation of `posts.map`.
-      The callback passed into `map` performs the following logic:
-        - if the `id` of the post matches `postId`, return a new post object with the desired values (use the spread operator).
-        - otherwise just return the post object unchanged.
-     */
+  }
+  const handleChange = (e) => {
+    e.preventDefault();
+    setSearch(e.target.value)
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    setSearchResults(posts.filter(post => post.username.includes(search))
+    )}
+
+    const addComment = (id) => {
+      setPosts(
+        posts.map(post => {
+          if (post.id === id) {
+            return ({
+              ...post,
+              comments: [
+                ...post.comments,
+                newComment
+              ]
+            })
+          }
+          return post
+        })
+      )
+    }
+
+    const handleCommentChange = (e) => {
+      e.preventDefault();
+      setNewComment({
+        ...newComment,
+        id: randomInt,
+        text: e.target.value
+      })
+    }
 
   return (
     <div className='App'>
       {/* Add SearchBar and Posts here to render them */}
       {/* Check the implementation of each component, to see what props they require, if any! */}
-      <SearchBar/>
+      <button onClick={() => setSearchResults([])}>
+      Clear Results
+      </button>
+      <SearchBar 
+      handleChange={handleChange} 
+      search={search}
+      handleSearch={handleSearch}
+      />
       {/* Assign variable - likePost and set it lP */}
-      <Posts likePost={likePost} posts={posts}/>
+      <Posts 
+      likePost={likePost} 
+      addComment={addComment}
+      handleCommentChange={handleCommentChange}
+      text={newComment.text}
+      posts={searchResults.length ? 
+        searchResults:
+        posts}/>
     </div>
   );
 };
